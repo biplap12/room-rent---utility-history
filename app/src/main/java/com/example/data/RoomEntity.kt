@@ -9,9 +9,9 @@ data class RoomEntity(
     val id: Long = 0,
     val name: String,
     val address: String = "",
-    val defaultRent: Double = 10000.0,
-    val electricityRate: Double = 15.0,
+    val defaultRent: Double = 0.0,
+    val electricityRate: Double = 0.0,
     val waterRate: Double = 0.0,
-    val wasteCharge: Double = 100.0,
+    val wasteCharge: Double = 0.0,
     val createdAt: Long = System.currentTimeMillis()
 )

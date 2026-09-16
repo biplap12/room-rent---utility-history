@@ -284,10 +284,10 @@ fun ManageRoomsDialog(
                             currentEditRoom = null
                             name = ""
                             address = ""
-                            rent = "10000"
-                            elecRate = "15"
-                            waterRate = "30"
-                            wasteCharge = "100"
+                            rent = ""
+                            elecRate = ""
+                            waterRate = ""
+                            wasteCharge = ""
                             isEditing = true
                         },
                         modifier = Modifier

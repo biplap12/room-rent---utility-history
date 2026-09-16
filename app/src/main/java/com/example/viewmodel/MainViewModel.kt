@@ -109,11 +109,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _selectedRecordForDetail = MutableStateFlow<MonthlyRecordEntity?>(null)
     val selectedRecordForDetail: StateFlow<MonthlyRecordEntity?> = _selectedRecordForDetail.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            repository.checkAndSeedInitialData()
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            repository.checkAndSeedInitialData()
+//        }
+//    }
 
     fun selectRoom(room: RoomEntity) {
         settings.setSelectedRoomId(room.id)
