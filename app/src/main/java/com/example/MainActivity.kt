@@ -1,3 +1,254 @@
+//package com.example
+//
+//import android.os.Bundle
+//import androidx.activity.ComponentActivity
+//import androidx.activity.compose.setContent
+//import androidx.activity.enableEdgeToEdge
+//import androidx.activity.viewModels
+//import androidx.compose.foundation.layout.*
+//import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.filled.*
+//import androidx.compose.material3.*
+//import androidx.compose.runtime.*
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.platform.LocalContext
+//import androidx.compose.ui.platform.testTag
+//import androidx.compose.ui.text.font.FontWeight
+//import androidx.compose.ui.unit.dp
+//import androidx.compose.ui.unit.sp
+//import androidx.lifecycle.compose.collectAsStateWithLifecycle
+//import com.example.ui.screens.*
+//import com.example.ui.theme.RoomRentTheme
+//import com.example.viewmodel.MainViewModel
+//
+//class MainActivity : ComponentActivity() {
+//    private val viewModel: MainViewModel by viewModels()
+//
+//    @OptIn(ExperimentalMaterial3Api::class)
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//
+//        setContent {
+//            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+//            val currencySymbol by viewModel.currencySymbol.collectAsStateWithLifecycle()
+//            val selectedTab by viewModel.selectedTab.collectAsStateWithLifecycle()
+//
+//            val allRooms by viewModel.allRooms.collectAsStateWithLifecycle()
+//            val activeRoom by viewModel.activeRoom.collectAsStateWithLifecycle()
+//            val currentRoomRecords by viewModel.currentRoomRecords.collectAsStateWithLifecycle()
+//            val allRecords by viewModel.allRecords.collectAsStateWithLifecycle()
+//            val latestRecord by viewModel.latestRecord.collectAsStateWithLifecycle()
+//
+//            val formState by viewModel.formState.collectAsStateWithLifecycle()
+//            val showRoomDialog by viewModel.showRoomDialog.collectAsStateWithLifecycle()
+//            val editingRoom by viewModel.editingRoom.collectAsStateWithLifecycle()
+//            val selectedRecordForDetail by viewModel.selectedRecordForDetail.collectAsStateWithLifecycle()
+//
+//            val context = LocalContext.current
+//
+//            RoomRentTheme(themePreference = themeMode) {
+//                Scaffold(
+//                    modifier = Modifier.fillMaxSize(),
+//                    topBar = {
+//                        Column {
+//                            TopAppBar(
+//                                title = {
+//                                    Column {
+//                                        Text(
+//                                            text = "Room Rent & Utility",
+//                                            fontWeight = FontWeight.Bold,
+//                                            fontSize = 18.sp
+//                                        )
+//                                        Text(
+//                                            text = "Offline Meter & Rent Notebook",
+//                                            style = MaterialTheme.typography.labelSmall,
+//                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+//                                        )
+//                                    }
+//                                },
+//                                actions = {
+//                                    if (selectedTab == 0 && latestRecord != null) {
+//                                        IconButton(
+//                                            onClick = { viewModel.exportPdf(context, latestRecord!!) },
+//                                            modifier = Modifier.testTag("top_action_pdf")
+//                                        ) {
+//                                            Icon(Icons.Default.PictureAsPdf, contentDescription = "Export Bill PDF")
+//                                        }
+//                                    }
+//                                },
+//                                colors = TopAppBarDefaults.topAppBarColors(
+//                                    containerColor = MaterialTheme.colorScheme.surface
+//                                )
+//                            )
+//                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+//                        }
+//                    },
+//                    bottomBar = {
+//                        Column {
+//                            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
+//                            NavigationBar(
+//                                modifier = Modifier
+//                                    .navigationBarsPadding()
+//                                    .testTag("bottom_navigation_bar"),
+//                                containerColor = MaterialTheme.colorScheme.surface,
+//                                tonalElevation = 0.dp
+//                            ) {
+//                                NavigationBarItem(
+//                                    selected = selectedTab == 0,
+//                                    onClick = { viewModel.selectTab(0) },
+//                                    icon = { Icon(Icons.Default.Dashboard, contentDescription = "Dashboard") },
+//                                    label = { Text("Dashboard") },
+//                                    modifier = Modifier.testTag("nav_dashboard")
+//                                )
+//                                NavigationBarItem(
+//                                    selected = selectedTab == 1,
+//                                    onClick = {
+//                                        viewModel.prepareAddRecord()
+//                                    },
+//                                    icon = { Icon(Icons.Default.AddCircle, contentDescription = "Add") },
+//                                    label = { Text("Add") },
+//                                    modifier = Modifier.testTag("nav_add")
+//                                )
+//                                NavigationBarItem(
+//                                    selected = selectedTab == 2,
+//                                    onClick = { viewModel.selectTab(2) },
+//                                    icon = { Icon(Icons.Default.History, contentDescription = "History") },
+//                                    label = { Text("History") },
+//                                    modifier = Modifier.testTag("nav_history")
+//                                )
+//                                NavigationBarItem(
+//                                    selected = selectedTab == 3,
+//                                    onClick = { viewModel.selectTab(3) },
+//                                    icon = { Icon(Icons.Default.BarChart, contentDescription = "Statistics") },
+//                                    label = { Text("Statistics") },
+//                                    modifier = Modifier.testTag("nav_statistics")
+//                                )
+//                                NavigationBarItem(
+//                                    selected = selectedTab == 4,
+//                                    onClick = { viewModel.selectTab(4) },
+//                                    icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+//                                    label = { Text("Settings") },
+//                                    modifier = Modifier.testTag("nav_settings")
+//                                )
+//                            }
+//                        }
+//                    }
+//                ) { innerPadding ->
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .padding(innerPadding)
+//                    ) {
+//                        when (selectedTab) {
+//                            0 -> DashboardScreen(
+//                                activeRoom = activeRoom,
+//                                allRooms = allRooms,
+//                                records = currentRoomRecords,
+//                                latestRecord = latestRecord,
+//                                currencySymbol = currencySymbol,
+//                                onSelectRoom = { viewModel.selectRoom(it) },
+//                                onManageRooms = { viewModel.openNewRoomDialog() },
+//                                onAddRecord = { viewModel.prepareAddRecord() },
+//                                onViewHistory = { viewModel.selectTab(2) },
+//                                onOpenRecordDetail = { viewModel.openRecordDetail(it) },
+//                                onExportPdf = { viewModel.exportPdf(context, it) }
+//                            )
+//                            1 -> AddRecordScreen(
+//                                formState = formState,
+//                                activeRoom = activeRoom,
+//                                currencySymbol = currencySymbol,
+//                                onUpdateField = { transform -> viewModel.updateFormField(transform) },
+//                                onSave = { viewModel.saveCurrentRecord() },
+//                                onCancel = { viewModel.selectTab(0) }
+//                            )
+//                            2 -> HistoryScreen(
+//                                activeRoom = activeRoom,
+//                                allRooms = allRooms,
+//                                records = currentRoomRecords,
+//                                currencySymbol = currencySymbol,
+//                                onSelectRoom = { viewModel.selectRoom(it) },
+//                                onManageRooms = { viewModel.openNewRoomDialog() },
+//                                onAddRecord = { viewModel.prepareAddRecord() },
+//                                onOpenRecordDetail = { viewModel.openRecordDetail(it) },
+//                                onEditRecord = { viewModel.prepareEditRecord(it) },
+//                                onDuplicateRecord = { viewModel.duplicateRecord(it) },
+//                                onDeleteRecord = { viewModel.deleteRecord(it) },
+//                                onExportCsv = { viewModel.exportCsv(context) }
+//                            )
+//                            3 -> StatisticsScreen(
+//                                activeRoom = activeRoom,
+//                                allRooms = allRooms,
+//                                records = currentRoomRecords,
+//                                currencySymbol = currencySymbol,
+//                                onSelectRoom = { viewModel.selectRoom(it) },
+//                                onManageRooms = { viewModel.openNewRoomDialog() }
+//                            )
+//                            4 -> SettingsScreen(
+//                                currentCurrency = currencySymbol,
+//                                themeMode = themeMode,
+//                                activeRoom = activeRoom,
+//                                allRooms = allRooms,
+//                                onSelectCurrency = { viewModel.setCurrency(it) },
+//                                onSelectTheme = { viewModel.setThemeMode(it) },
+//                                onManageRooms = { viewModel.openNewRoomDialog() },
+//                                onExportCsv = { viewModel.exportCsv(context) },
+//                                onExportJson = { viewModel.exportAllJson() },
+//                                onRestoreJson = { viewModel.restoreFromJson(it) }
+//                            )
+//                        }
+//
+//                        // Manage Rooms Modal Dialog
+//                        if (showRoomDialog) {
+//                            ManageRoomsDialog(
+//                                allRooms = allRooms,
+//                                activeRoom = activeRoom,
+//                                editingRoom = editingRoom,
+//                                currencySymbol = currencySymbol,
+//                                onSelectRoom = {
+//                                    viewModel.selectRoom(it)
+//                                    viewModel.closeRoomDialog()
+//                                },
+//                                onSaveRoom = { name, address, rent, elecRate, waterRate, wasteCharge ->
+//                                    viewModel.saveRoom(name, address, rent, elecRate, waterRate, wasteCharge)
+//                                },
+//                                onDeleteRoom = { viewModel.deleteRoom(it) },
+//                                onClose = { viewModel.closeRoomDialog() }
+//                            )
+//                        }
+//
+//                        // Record Details Statement Dialog
+//                        if (selectedRecordForDetail != null) {
+//                            val detailRecord = selectedRecordForDetail!!
+//                            val roomForRecord = allRooms.find { it.id == detailRecord.roomId } ?: activeRoom
+//                            RecordDetailDialog(
+//                                record = detailRecord,
+//                                room = roomForRecord,
+//                                currencySymbol = currencySymbol,
+//                                onEdit = {
+//                                    viewModel.prepareEditRecord(it)
+//                                },
+//                                onDuplicate = {
+//                                    viewModel.duplicateRecord(it)
+//                                },
+//                                onDelete = {
+//                                    viewModel.deleteRecord(it)
+//                                },
+//                                onExportPdf = {
+//                                    viewModel.exportPdf(context, it)
+//                                },
+//                                onClose = { viewModel.closeRecordDetail() }
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
+
+
 package com.example
 
 import android.os.Bundle
@@ -20,6 +271,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.screens.*
 import com.example.ui.theme.RoomRentTheme
 import com.example.viewmodel.MainViewModel
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.Settings
+import com.example.data.MonthlyRecordEntity
+import com.example.data.RoomEntity
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -46,8 +308,13 @@ class MainActivity : ComponentActivity() {
             val selectedRecordForDetail by viewModel.selectedRecordForDetail.collectAsStateWithLifecycle()
 
             val context = LocalContext.current
+            var showSplash by remember { mutableStateOf(true) }
+            var showProfileDialog by remember { mutableStateOf(false) }
 
             RoomRentTheme(themePreference = themeMode) {
+                if (showSplash) {
+                    SplashScreen(onFinished = { showSplash = false })
+                } else {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
@@ -67,14 +334,25 @@ class MainActivity : ComponentActivity() {
                                         )
                                     }
                                 },
+//                                actions = {
+//                                    if (selectedTab == 0 && latestRecord != null) {
+//                                        IconButton(
+//                                            onClick = { viewModel.exportPdf(context, latestRecord!!) },
+//                                            modifier = Modifier.testTag("top_action_pdf")
+//                                        ) {
+//                                            Icon(Icons.Default.PictureAsPdf, contentDescription = "Export Bill PDF")
+//                                        }
+//                                    }
+//                                },
                                 actions = {
-                                    if (selectedTab == 0 && latestRecord != null) {
-                                        IconButton(
-                                            onClick = { viewModel.exportPdf(context, latestRecord!!) },
-                                            modifier = Modifier.testTag("top_action_pdf")
-                                        ) {
-                                            Icon(Icons.Default.PictureAsPdf, contentDescription = "Export Bill PDF")
-                                        }
+                                    IconButton(
+                                        onClick = { showProfileDialog = true },
+                                        modifier = Modifier.testTag("top_action_profile")
+                                    ) {
+                                        Icon(
+                                            Icons.Default.AccountCircle,
+                                            contentDescription = "Profile"
+                                        )
                                     }
                                 },
                                 colors = TopAppBarDefaults.topAppBarColors(
@@ -141,10 +419,25 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                     ) {
                         when (selectedTab) {
+//                            0 -> DashboardScreen(
+//                                activeRoom = activeRoom,
+//                                allRooms = allRooms,
+//                                records = currentRoomRecords,
+//                                latestRecord = latestRecord,
+//                                currencySymbol = currencySymbol,
+//                                onSelectRoom = { viewModel.selectRoom(it) },
+//                                onManageRooms = { viewModel.openNewRoomDialog() },
+//                                onAddRecord = { viewModel.prepareAddRecord() },
+//                                onViewHistory = { viewModel.selectTab(2) },
+//                                onOpenRecordDetail = { viewModel.openRecordDetail(it) },
+//                                onExportPdf = { viewModel.exportPdf(context, it) }
+//                            )
+
                             0 -> DashboardScreen(
                                 activeRoom = activeRoom,
                                 allRooms = allRooms,
                                 records = currentRoomRecords,
+                                allRecords = allRecords,                        // <-- add
                                 latestRecord = latestRecord,
                                 currencySymbol = currencySymbol,
                                 onSelectRoom = { viewModel.selectRoom(it) },
@@ -152,7 +445,8 @@ class MainActivity : ComponentActivity() {
                                 onAddRecord = { viewModel.prepareAddRecord() },
                                 onViewHistory = { viewModel.selectTab(2) },
                                 onOpenRecordDetail = { viewModel.openRecordDetail(it) },
-                                onExportPdf = { viewModel.exportPdf(context, it) }
+                                onExportPdf = { viewModel.exportPdf(context, it) },
+                                onViewStatistics = { viewModel.selectTab(3) }
                             )
                             1 -> AddRecordScreen(
                                 formState = formState,
@@ -174,7 +468,9 @@ class MainActivity : ComponentActivity() {
                                 onEditRecord = { viewModel.prepareEditRecord(it) },
                                 onDuplicateRecord = { viewModel.duplicateRecord(it) },
                                 onDeleteRecord = { viewModel.deleteRecord(it) },
-                                onExportCsv = { viewModel.exportCsv(context) }
+                                onExportPdf = { records -> viewModel.exportPdf(context, records) },
+                                onExportExcel = { records -> viewModel.exportExcel(context, records)
+                                }
                             )
                             3 -> StatisticsScreen(
                                 activeRoom = activeRoom,
@@ -192,7 +488,8 @@ class MainActivity : ComponentActivity() {
                                 onSelectCurrency = { viewModel.setCurrency(it) },
                                 onSelectTheme = { viewModel.setThemeMode(it) },
                                 onManageRooms = { viewModel.openNewRoomDialog() },
-                                onExportCsv = { viewModel.exportCsv(context) },
+                                onExportExcel = { viewModel.exportExcelAll(context) },
+                                onExportPdfAll = { viewModel.exportPdfAll(context) },
                                 onExportJson = { viewModel.exportAllJson() },
                                 onRestoreJson = { viewModel.restoreFromJson(it) }
                             )
@@ -214,6 +511,25 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onDeleteRoom = { viewModel.deleteRoom(it) },
                                 onClose = { viewModel.closeRoomDialog() }
+                            )
+                        }
+
+                        if (showProfileDialog) {
+                            ProfileDialog(
+                                activeRoom = activeRoom,
+                                allRooms = allRooms,
+                                allRecords = allRecords,
+                                currencySymbol = currencySymbol,
+                                themeMode = themeMode,
+                                onClose = { showProfileDialog = false },
+                                onManageRooms = {
+                                    showProfileDialog = false
+                                    viewModel.openNewRoomDialog()
+                                },
+                                onOpenSettings = {
+                                    showProfileDialog = false
+                                    viewModel.selectTab(4)
+                                }
                             )
                         }
 
@@ -243,6 +559,128 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+            }
+        }
+    }
+    @Composable
+    fun ProfileDialog(
+        activeRoom: RoomEntity?,
+        allRooms: List<RoomEntity>,
+        allRecords: List<MonthlyRecordEntity>,
+        currencySymbol: String,
+        themeMode: String,
+        onClose: () -> Unit,
+        onManageRooms: () -> Unit,
+        onOpenSettings: () -> Unit
+    ) {
+        AlertDialog(
+            onDismissRequest = onClose,
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = null,
+            text = {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // avatar
+                    Box(
+                        modifier = Modifier
+                            .size(80.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(44.dp)
+                        )
+                    }
+
+                    Spacer(Modifier.height(14.dp))
+
+                    Text(
+                        text = "Room Rent Manager",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = "Offline Meter & Rent Notebook",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(Modifier.height(18.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+                    Spacer(Modifier.height(14.dp))
+
+                    // stat rows
+                    ProfileStatRow("Rooms", allRooms.size.toString())
+                    ProfileStatRow("Total Bills", allRecords.size.toString())
+                    ProfileStatRow("Active Room", activeRoom?.name ?: "—")
+                    ProfileStatRow("Currency", currencySymbol)
+                    ProfileStatRow(
+                        "Theme",
+                        themeMode.replaceFirstChar { it.uppercase() }
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    // actions
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = onManageRooms,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(Icons.Default.Apartment, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Rooms", fontSize = 12.sp)
+                        }
+                        Button(
+                            onClick = onOpenSettings,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(6.dp))
+                            Text("Settings", fontSize = 12.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = onClose, shape = RoundedCornerShape(10.dp)) {
+                    Text("Close", fontWeight = FontWeight.SemiBold)
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun ProfileStatRow(label: String, value: String) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }

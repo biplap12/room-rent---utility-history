@@ -74,4 +74,5 @@ val RentAccent = Color(0xFF4F46E5)               // Geometric Indigo
 val RentContainer = Color(0xFFEEF2FF)
 val WasteAccent = Color(0xFF7C3AED)              // Geometric Violet
 val WasteContainer = Color(0xFFF3E8FF)
+val StatusPartiallyPaid = Color(0xFFF59E0B)   // amber-500
 

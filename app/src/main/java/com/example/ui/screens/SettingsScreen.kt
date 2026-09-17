@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -58,8 +60,9 @@ fun SettingsScreen(
     onSelectCurrency: (String) -> Unit,
     onSelectTheme: (String) -> Unit,
     onManageRooms: () -> Unit,
-    onExportCsv: () -> Unit,
+    onExportExcel: () -> Unit,
     onExportJson: () -> String,
+    onExportPdfAll: () -> Unit,
     onRestoreJson: (String) -> Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -72,6 +75,8 @@ fun SettingsScreen(
     var showBackupDialog by remember { mutableStateOf(false) }
     var showRestoreDialog by remember { mutableStateOf(false) }
     var restoreInputText by remember { mutableStateOf("") }
+    var showExportDialog by remember { mutableStateOf(false) }
+
 
     Column(
         modifier = modifier
@@ -167,9 +172,9 @@ fun SettingsScreen(
             Column {
                 SettingsListItem(
                     icon = Icons.Default.FileDownload,
-                    title = "Export to CSV Spreadsheet",
-                    subtitle = "Share or backup all monthly records in CSV format",
-                    onClick = onExportCsv,
+                    title = "Export All Data",
+                    subtitle = "Share or backup all monthly records in Excel and Pdf format ",
+                    onClick = {showExportDialog = true},
                     testTag = "settings_export_csv_item"
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
@@ -433,6 +438,162 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(onClick = { showThemeDialog = false }) {
                     Text("Close")
+                }
+            }
+        )
+    }
+
+    if (showExportDialog) {
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Column {
+                    Text(
+                        text = "Export Data",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Choose a format to download your records",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+
+                    // ── PDF card ────────────────────────────────────────
+                    Surface(
+                        onClick = {
+                            showExportDialog = false
+                            onExportPdfAll()
+                            Toast.makeText(
+                                context,
+                                "PDF exported successfully!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color(0xFFFFF1F2),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(Color(0xFFF43F5E)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PictureAsPdf,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(14.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "PDF Report",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF881337)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Full formatted statement for printing",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color(0xFF9F1239)
+                                )
+                            }
+
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = Color(0xFFF43F5E)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // ── Excel card ──────────────────────────────────────
+                    Surface(
+                        onClick = {
+                            showExportDialog = false
+                            onExportExcel()
+                            Toast.makeText(
+                                context,
+                                "Excel exported successfully!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color(0xFFECFDF5),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(Color(0xFF10B981)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.TableChart,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(14.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Excel Workbook",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF064E3B)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Editable .xlsx file, one sheet per room",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color(0xFF065F46)
+                                )
+                            }
+
+                            Icon(
+                                imageVector = Icons.Default.ChevronRight,
+                                contentDescription = null,
+                                tint = Color(0xFF10B981)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showExportDialog = false },
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text("Close", fontWeight = FontWeight.SemiBold)
                 }
             }
         )

@@ -33,30 +33,46 @@ object PdfExporter {
                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             }
 
+            // ── palette ──────────────────────────────────────────
+            val ink        = Color.parseColor("#0F172A")   // slate-900
+            val inkSoft    = Color.parseColor("#475569")   // slate-600
+            val inkMuted   = Color.parseColor("#94A3B8")   // slate-400
+            val indigo     = Color.parseColor("#4F46E5")   // indigo-600
+            val indigoSoft = Color.parseColor("#EEF2FF")   // indigo-50
+            val emerald    = Color.parseColor("#10B981")   // emerald-500
+            val amber      = Color.parseColor("#F59E0B")   // amber-500
+            val rose       = Color.parseColor("#F43F5E")   // rose-500
+            val line       = Color.parseColor("#E2E8F0")   // slate-200
+            val lineStrong = Color.parseColor("#CBD5E1")   // slate-300
+
             // Background
             paint.color = Color.WHITE
             canvas.drawRect(0f, 0f, 595f, 842f, paint)
 
-            // Header Banner
-            paint.color = Color.parseColor("#0F172A") // Deep slate
+            // Header Banner — soft indigo instead of dark slate
+            paint.color = indigoSoft
             canvas.drawRect(0f, 0f, 595f, 90f, paint)
 
+            // Accent bar (left edge of header)
+            paint.color = indigo
+            canvas.drawRect(0f, 0f, 4f, 90f, paint)
+
             // Header Text
-            boldPaint.color = Color.WHITE
+            boldPaint.color = indigo
             boldPaint.textSize = 20f
             canvas.drawText("ROOM RENT & UTILITY STATEMENT", 36f, 45f, boldPaint)
 
-            paint.color = Color.parseColor("#94A3B8")
+            paint.color = inkSoft
             paint.textSize = 12f
             canvas.drawText("Monthly Billing & Usage Summary", 36f, 68f, paint)
 
             var y = 120f
 
             // Property Details
-            boldPaint.color = Color.parseColor("#1E293B")
+            boldPaint.color = inkSoft
             boldPaint.textSize = 14f
             canvas.drawText("PROPERTY / ROOM:", 36f, y, boldPaint)
-            paint.color = Color.parseColor("#334155")
+            paint.color = ink
             paint.textSize = 14f
             canvas.drawText(room?.name ?: "Room ${record.roomId}", 180f, y, paint)
 
@@ -75,25 +91,25 @@ object PdfExporter {
             canvas.drawText(record.billingMonth, 180f, y, paint)
 
             val statusColor = when (record.paymentStatus) {
-                "PAID" -> Color.parseColor("#16A34A")
-                "PARTIALLY_PAID" -> Color.parseColor("#D97706")
-                else -> Color.parseColor("#DC2626")
+                "PAID" -> emerald
+                "PARTIALLY_PAID" -> amber
+                else -> rose
             }
             boldPaint.color = statusColor
             canvas.drawText("Status: ${record.paymentStatus}", 420f, y, boldPaint)
 
             y += 30f
             // Divider
-            paint.color = Color.parseColor("#E2E8F0")
+            paint.color = line
             paint.strokeWidth = 1.5f
             canvas.drawLine(36f, y, 559f, y, paint)
             y += 25f
 
-            // Table Header
-            paint.color = Color.parseColor("#F1F5F9")
+            // Table Header — soft indigo strip
+            paint.color = indigoSoft
             canvas.drawRect(36f, y - 16f, 559f, y + 10f, paint)
 
-            boldPaint.color = Color.parseColor("#475569")
+            boldPaint.color = indigo
             boldPaint.textSize = 11f
             canvas.drawText("DESCRIPTION", 46f, y, boldPaint)
             canvas.drawText("READING / UNITS", 260f, y, boldPaint)
@@ -103,13 +119,13 @@ object PdfExporter {
             y += 24f
 
             fun drawRow(desc: String, unitsInfo: String, rateInfo: String, amount: String) {
-                paint.color = Color.parseColor("#1E293B")
+                paint.color = ink
                 paint.textSize = 11f
                 canvas.drawText(desc, 46f, y, paint)
-                paint.color = Color.parseColor("#64748B")
+                paint.color = inkSoft
                 canvas.drawText(unitsInfo, 260f, y, paint)
                 canvas.drawText(rateInfo, 400f, y, paint)
-                boldPaint.color = Color.parseColor("#0F172A")
+                boldPaint.color = ink
                 boldPaint.textSize = 11f
                 canvas.drawText(amount, 490f, y, boldPaint)
                 y += 22f
@@ -142,42 +158,42 @@ object PdfExporter {
 
             y += 10f
             // Divider
-            paint.color = Color.parseColor("#CBD5E1")
+            paint.color = lineStrong
             canvas.drawLine(36f, y, 559f, y, paint)
             y += 25f
 
             // Totals
             boldPaint.textSize = 14f
-            boldPaint.color = Color.parseColor("#0F172A")
+            boldPaint.color = ink
             canvas.drawText("TOTAL BILL:", 340f, y, boldPaint)
             canvas.drawText(FormatUtils.formatMoney(record.totalAmount, currencySymbol), 470f, y, boldPaint)
 
             y += 22f
             paint.textSize = 12f
-            paint.color = Color.parseColor("#16A34A")
+            paint.color = emerald
             canvas.drawText("Amount Paid:", 340f, y, paint)
             canvas.drawText(FormatUtils.formatMoney(record.amountPaid, currencySymbol), 470f, y, paint)
 
             y += 20f
             boldPaint.textSize = 13f
-            boldPaint.color = if (record.remainingAmount > 0) Color.parseColor("#DC2626") else Color.parseColor("#16A34A")
+            boldPaint.color = if (record.remainingAmount > 0) rose else emerald
             canvas.drawText("Remaining Balance:", 340f, y, boldPaint)
             canvas.drawText(FormatUtils.formatMoney(record.remainingAmount, currencySymbol), 470f, y, boldPaint)
 
             if (record.notes.isNotBlank()) {
                 y += 40f
                 boldPaint.textSize = 11f
-                boldPaint.color = Color.parseColor("#334155")
+                boldPaint.color = inkSoft
                 canvas.drawText("Notes / Remarks:", 46f, y, boldPaint)
                 y += 16f
                 paint.textSize = 10f
-                paint.color = Color.parseColor("#64748B")
+                paint.color = inkSoft
                 canvas.drawText(record.notes, 46f, y, paint)
             }
 
             // Footer
             y = 800f
-            paint.color = Color.parseColor("#94A3B8")
+            paint.color = inkMuted
             paint.textSize = 9f
             canvas.drawText(
                 "Generated by Room Rent & Utility History • Bill By ${context.getString(R.string.author_name)}.",
