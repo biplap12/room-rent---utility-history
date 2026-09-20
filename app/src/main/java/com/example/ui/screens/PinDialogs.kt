@@ -304,7 +304,6 @@ fun VerifyPinDialog(
                         errorText = "PIN must be at least 4 digits"
                         shakeTrigger++
                     } else if (!verify(pin)) {
-                        errorText = "Incorrect PIN"
                         shakeTrigger++
                         pin = ""
                     } else {

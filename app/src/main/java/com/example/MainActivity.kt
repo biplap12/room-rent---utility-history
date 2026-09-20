@@ -834,6 +834,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.security.LockType
 import com.example.ui.theme.*
 
 
@@ -1231,16 +1232,17 @@ class MainActivity : FragmentActivity() {
 
                             if (showProfileDialog) {
                                 ProfileDialog(
-                                    activeRoom = activeRoom,
                                     allRooms = allRooms,
                                     allRecords = allRecords,
                                     currencySymbol = currencySymbol,
                                     themeMode = themeMode,
                                     appLockEnabled = lockConfig.enabled,
                                     appLockType = if (lockConfig.enabled)
-                                        if (lockConfig.lockType.name == "PIN") "PIN" else "Password"
+                                        if (lockConfig.lockType == LockType.PIN) "PIN" else "Password"
                                     else "",
                                     biometricEnabled = lockConfig.biometricEnabled,
+                                    userName = lockConfig.userName,          // ★ from AppLockConfig
+                                    userEmail = lockConfig.userEmail,        // ★ from AppLockConfig
                                     onClose = { showProfileDialog = false },
                                     onManageRooms = {
                                         showProfileDialog = false
@@ -1415,266 +1417,7 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    @Composable
-    fun ProfileDialog(
-        activeRoom: RoomEntity?,
-        allRooms: List<RoomEntity>,
-        allRecords: List<MonthlyRecordEntity>,
-        currencySymbol: String,
-        themeMode: String,
-        appLockEnabled: Boolean,
-        appLockType: String,              // "PIN" / "Password" / ""
-        biometricEnabled: Boolean,
-        onClose: () -> Unit,
-        onManageRooms: () -> Unit,
-        onOpenSettings: () -> Unit
-    ) {
-        val cs = MaterialTheme.colorScheme
 
-        Dialog(
-            onDismissRequest = onClose,
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 24.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                BeautifulCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.85f),
-                    accent = cs.primary,
-                    shape = RoundedCornerShape(LuxeTokens.DialogRadius),
-                    elevation = 16.dp
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(22.dp)
-                    ) {
 
-                        /* ── Header ── */
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            GradientIconBadge(
-                                icon = Icons.Default.Person,
-                                accent = cs.primary,
-                                size = 56.dp,
-                                iconSize = 26.dp,
-                                corner = 18.dp,
-                                topAmount = 0.26f,
-                                bottomAmount = 0.10f
-                            )
-                            Spacer(Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    "Room Rent Manager",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    "Offline Meter & Rent Notebook",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = cs.onSurfaceVariant
-                                )
-                            }
-                            IconButton(onClick = onClose) {
-                                Icon(
-                                    Icons.Default.Close, "Close",
-                                    tint = cs.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        Spacer(Modifier.height(20.dp))
-
-                        /* ── Scrollable body ── */
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f, fill = false)
-                                .verticalScroll(rememberScrollState())
-                        ) {
-
-                            /* ── Overview ── */
-                            LuxeSectionLabel(
-                                text = "Overview",
-                                caption = "At-a-glance stats"
-                            )
-
-                            Spacer(Modifier.height(10.dp))
-
-                            LuxeListGroup {
-                                ProfileStatRow(
-                                    icon = Icons.Default.Apartment,
-                                    label = "Rooms",
-                                    value = allRooms.size.toString(),
-                                    accent = cs.primary
-                                )
-                                LuxeDivider()
-                                ProfileStatRow(
-                                    icon = Icons.Default.ReceiptLong,
-                                    label = "Total Bills",
-                                    value = allRecords.size.toString(),
-                                    accent = cs.primary
-                                )
-                                LuxeDivider()
-                                ProfileStatRow(
-                                    icon = Icons.Default.HomeWork,
-                                    label = "Active Room",
-                                    value = activeRoom?.name ?: "—",
-                                    accent = cs.primary
-                                )
-                            }
-
-                            Spacer(Modifier.height(20.dp))
-
-                            /* ── Preferences ── */
-                            LuxeSectionLabel(
-                                text = "Preferences",
-                                caption = "Appearance and formatting"
-                            )
-
-                            Spacer(Modifier.height(10.dp))
-
-                            LuxeListGroup {
-                                ProfileStatRow(
-                                    icon = Icons.Default.CurrencyExchange,
-                                    label = "Currency",
-                                    value = currencySymbol,
-                                    accent = cs.primary
-                                )
-                                LuxeDivider()
-                                ProfileStatRow(
-                                    icon = Icons.Default.DarkMode,
-                                    label = "Theme",
-                                    value = themeMode.replaceFirstChar { it.uppercase() },
-                                    accent = cs.primary
-                                )
-                            }
-
-                            Spacer(Modifier.height(20.dp))
-
-                            /* ── Security ── */
-                            LuxeSectionLabel(
-                                text = "Security",
-                                caption = "App protection status"
-                            )
-
-                            Spacer(Modifier.height(10.dp))
-
-                            LuxeListGroup {
-                                ProfileStatRow(
-                                    icon = if (appLockEnabled)
-                                        Icons.Default.Lock else Icons.Default.LockOpen,
-                                    label = "App Lock",
-                                    value = when {
-                                        !appLockEnabled -> "Off"
-                                        appLockType.isBlank() -> "Enabled"
-                                        else -> "$appLockType protected"
-                                    },
-                                    accent = if (appLockEnabled) cs.primary else cs.onSurfaceVariant
-                                )
-                                if (appLockEnabled) {
-                                    LuxeDivider()
-                                    ProfileStatRow(
-                                        icon = Icons.Default.Fingerprint,
-                                        label = "Biometric",
-                                        value = if (biometricEnabled) "Enabled" else "Disabled",
-                                        accent = if (biometricEnabled) cs.primary else cs.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(Modifier.height(18.dp))
-
-                        /* ── Actions ── */
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            LuxeSecondaryButton(
-                                text = "Rooms",
-                                icon = Icons.Default.Apartment,
-                                onClick = onManageRooms,
-                                modifier = Modifier.weight(1f)
-                            )
-                            LuxePrimaryButton(
-                                text = "Settings",
-                                icon = Icons.Default.Settings,
-                                onClick = onOpenSettings,
-                                modifier = Modifier.weight(1.2f)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /* ── Row used inside the profile lists ── */
-    @Composable
-    private fun ProfileStatRow(
-        icon: androidx.compose.ui.graphics.vector.ImageVector,
-        label: String,
-        value: String,
-        accent: androidx.compose.ui.graphics.Color
-    ) {
-        val cs = MaterialTheme.colorScheme
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            GradientIconBadge(
-                icon = icon,
-                accent = accent,
-                size = 32.dp,
-                iconSize = 16.dp,
-                corner = 10.dp,
-                topAmount = 0.20f,
-                bottomAmount = 0.06f
-            )
-            Spacer(Modifier.width(12.dp))
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = cs.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                value,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = cs.onSurface,
-                maxLines = 1,
-                textAlign = androidx.compose.ui.text.style.TextAlign.End
-            )
-        }
-    }
-
-    @Composable
-    private fun ProfileStatRow(label: String, value: String) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
+    
 }
