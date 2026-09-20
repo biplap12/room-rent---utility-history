@@ -33,4 +33,7 @@ interface RoomDao {
 
     @Query("DELETE FROM rooms WHERE id = :id")
     suspend fun deleteRoomById(id: Long)
+
+    @Query("SELECT * FROM rooms")
+    suspend fun getAllRoomsSync(): List<RoomEntity>
 }

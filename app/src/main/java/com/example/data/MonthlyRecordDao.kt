@@ -42,4 +42,7 @@ interface MonthlyRecordDao {
 
     @Query("DELETE FROM monthly_records WHERE id = :id")
     suspend fun deleteRecordById(id: Long)
+
+    @Query("SELECT * FROM monthly_records")
+    suspend fun getAllRecordsSync(): List<MonthlyRecordEntity>
 }

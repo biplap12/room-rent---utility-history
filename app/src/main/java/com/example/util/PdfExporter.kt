@@ -68,20 +68,40 @@ object PdfExporter {
 
             var y = 120f
 
-            // Property Details
+// ── Property Details ─────────────────────────────────────────
             boldPaint.color = inkSoft
-            boldPaint.textSize = 14f
-            canvas.drawText("PROPERTY / ROOM:", 36f, y, boldPaint)
-            paint.color = ink
-            paint.textSize = 14f
-            canvas.drawText(room?.name ?: "Room ${record.roomId}", 180f, y, paint)
+            boldPaint.textSize = 13f
 
-            y += 22f
+            paint.color = ink
+            paint.textSize = 13f
+
+// Room name
+            canvas.drawText("PROPERTY / ROOM:", 36f, y, boldPaint)
+            canvas.drawText(room?.name ?: "Room ${record.roomId}", 180f, y, paint)
+            y += 20f
+
+// Tenant name (skip if blank)
+            if (!room?.tenantName.isNullOrBlank()) {
+                canvas.drawText("Tenant Name:", 36f, y, boldPaint)
+                canvas.drawText(room.tenantName, 180f, y, paint)
+                y += 20f
+            }
+
+// Contact (phone + email combined)
+            val phone = room?.tenantPhone?.takeIf { it.isNotBlank() }
+            val email = room?.tenantEmail?.takeIf { it.isNotBlank() }
+            val contact = listOfNotNull(phone, email).joinToString("  •  ")
+
+            if (contact.isNotBlank()) {
+                canvas.drawText("Contact:", 36f, y, boldPaint)
+                canvas.drawText(contact, 180f, y, paint)
+                y += 20f
+            }
+
+// Address
             if (!room?.address.isNullOrBlank()) {
-                boldPaint.textSize = 11f
                 canvas.drawText("Address:", 36f, y, boldPaint)
-                paint.textSize = 11f
-                canvas.drawText(room?.address ?: "", 180f, y, paint)
+                canvas.drawText(room.address, 180f, y, paint)
                 y += 20f
             }
 
@@ -180,16 +200,69 @@ object PdfExporter {
             canvas.drawText("Remaining Balance:", 340f, y, boldPaint)
             canvas.drawText(FormatUtils.formatMoney(record.remainingAmount, currencySymbol), 470f, y, boldPaint)
 
+//            if (record.notes.isNotBlank()) {
+//                y += 40f
+//                boldPaint.textSize = 11f
+//                boldPaint.color = inkSoft
+//                canvas.drawText("Notes / Remarks:", 46f, y, boldPaint)
+//                y += 16f
+//                paint.textSize = 16f
+//                paint.color = inkSoft
+//                canvas.drawText(record.notes, 46f, y, paint)
+//            }
+
+            // ── Notes (left) + Signature (right) ─────────────────────────
+            val notesStartY = y + 40f
+
+// LEFT — Notes
             if (record.notes.isNotBlank()) {
-                y += 40f
                 boldPaint.textSize = 11f
                 boldPaint.color = inkSoft
-                canvas.drawText("Notes / Remarks:", 46f, y, boldPaint)
-                y += 16f
-                paint.textSize = 10f
-                paint.color = inkSoft
-                canvas.drawText(record.notes, 46f, y, paint)
+                canvas.drawText("Notes / Remarks:", 46f, notesStartY, boldPaint)
+
+                // Wrap long notes into multiple lines (max width ~ 280px on left half)
+                val notesPaint = Paint().apply {
+                    textSize = 11f
+                    color = inkSoft
+                    isAntiAlias = true
+                }
+                val maxNotesWidth = 280f
+                val words = record.notes.split(" ")
+                val lines = mutableListOf<String>()
+                var currentLine = ""
+                for (word in words) {
+                    val test = if (currentLine.isEmpty()) word else "$currentLine $word"
+                    if (notesPaint.measureText(test) <= maxNotesWidth) {
+                        currentLine = test
+                    } else {
+                        if (currentLine.isNotEmpty()) lines.add(currentLine)
+                        currentLine = word
+                    }
+                }
+                if (currentLine.isNotEmpty()) lines.add(currentLine)
+
+                var noteY = notesStartY + 16f
+                for (line in lines.take(4)) {          // cap at 4 lines to avoid overflow
+                    canvas.drawText(line, 46f, noteY, notesPaint)
+                    noteY += 14f
+                }
             }
+
+// RIGHT — Signature block
+            val sigRightX = 380f
+            val sigLineWidth = 175f
+
+// Signature line (underline)
+            paint.color = lineStrong
+            paint.strokeWidth = 1f
+            paint.style = Paint.Style.STROKE
+            canvas.drawLine(sigRightX, notesStartY + 45f, sigRightX + sigLineWidth, notesStartY + 45f, paint)
+            paint.style = Paint.Style.FILL   // reset for later text draws
+
+// "Signature" label
+            boldPaint.textSize = 10f
+            boldPaint.color = inkSoft
+            canvas.drawText("Signature", sigRightX + 60f, notesStartY + 60f, boldPaint)
 
             // Footer
             y = 800f
@@ -206,7 +279,15 @@ object PdfExporter {
             // Save PDF to cache
             val outputDir = File(context.cacheDir, "reports")
             if (!outputDir.exists()) outputDir.mkdirs()
-            val pdfFile = File(outputDir, "Bill_${record.billingMonth.replace(" ", "_")}.pdf")
+            val cleanRoomName = listOfNotNull(room?.name, room?.tenantName)
+                .map { it.replace(Regex("[^A-Za-z0-9]+"), "") }   // clean each part
+                .filter { it.isNotBlank() }                        // drop blanks
+                .joinToString("_")                                 // join with _
+                .ifBlank { "Room${record.roomId}" }                // fallback
+            val pdfFile = File(
+                outputDir,
+                "Bill_${cleanRoomName}_${record.billingMonth.replace(" ", "_")}.pdf"
+            )
             val outputStream = FileOutputStream(pdfFile)
             pdfDoc.writeTo(outputStream)
             outputStream.flush()
