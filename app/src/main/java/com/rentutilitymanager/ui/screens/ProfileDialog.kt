@@ -75,7 +75,7 @@ fun ProfileDialog(
                         Spacer(Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Room Rent Manager",
+                                "Rent & Utilities Manager",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )

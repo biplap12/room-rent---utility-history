@@ -213,7 +213,7 @@ class MainActivity : FragmentActivity() {
                                         title = {
                                             Column {
                                                 Text(
-                                                    text = "Room Rent & Utility",
+                                                    text = "Rent & Utility Manager",
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 18.sp
                                                 )

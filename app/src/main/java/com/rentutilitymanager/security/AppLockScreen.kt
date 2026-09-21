@@ -127,7 +127,7 @@ fun AppLockScreen(
 
             BiometricHelper.prompt(
                 activity = activity,
-                title = "Unlock Room Rent",
+                title = "Unlock Rent & Utilities Manager",
                 subtitle = "Verify your identity",
                 onSuccess = {
                     onUnlock()
