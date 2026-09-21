@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "Room Rent & Utility History"
+rootProject.name = "Rent & Utility Manager"
 
 include(":app")

@@ -81,7 +81,7 @@ fun AppLockVerifyFlow(
         if (AppLockPrefs.verify(input, config.credentialSalt, config.credentialHash)) {
             onVerified()
         } else {
-            error = "Incorrect ${if (config.lockType == LockType.PIN) "PIN" else "password"}"
+            error = "Incorrect ${if (config.lockType == LockType.PIN) "PIN3" else "password3"}"
             input = ""
             shakeTrigger++
         }

@@ -66,7 +66,7 @@ fun AppLockDisableFlow(
         if (AppLockPrefs.verify(input, config.credentialSalt, config.credentialHash)) {
             onConfirmDisable()
         } else {
-            error = "Incorrect ${if (config.lockType == LockType.PIN) "PIN" else "password"}"
+            error = "Incorrect ${if (config.lockType == LockType.PIN) "PIN1" else "password1"}"
             input = ""
         }
     }

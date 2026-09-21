@@ -1,28 +1,4 @@
 package com.example.ui.theme
-
-/* ═══════════════════════════════════════════════════════════════════
-   LUXE UI — the app's single design system
-   -------------------------------------------------------------------
-   A drop-in visual language built on top of MaterialTheme.
-   All surfaces are SOLID — no transparency anywhere.
-
-   TABLE OF CONTENTS
-   ─────────────────
-   1.  Tokens                 — global radii, elevations
-   2.  Cards                  — BeautifulCard, EmptyStateCard
-   3.  Icon plates            — GradientIconBadge, LeadingIconTile
-   4.  Progress & legends     — AccentProgressBar, LegendChip, LegendBar
-   5.  Tiles & metrics        — StatTile, MetricColumn, StatusPill
-   6.  Form primitives        — LuxeSectionLabel, LuxeTextField,
-                                LuxeDropdown, LuxePrimaryButton,
-                                LuxeSecondaryButton
-   7.  List primitives        — LuxeListRow, LuxeListGroup, LuxeDivider,
-                                LuxeToggleRow
-   8.  Screen chrome          — LuxeScreenHeader
-   9.  Choice rows            — ExportOption
-   ═══════════════════════════════════════════════════════════════════ */
-
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState

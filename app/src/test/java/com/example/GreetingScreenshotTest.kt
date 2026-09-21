@@ -24,7 +24,7 @@ class GreetingScreenshotTest {
   fun greeting_screenshot() {
     composeTestRule.setContent {
       RoomRentTheme {
-        Text("Room Rent & Utility History")
+        Text("Rent & Utility Manager")
       }
     }
 

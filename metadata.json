@@ -1,5 +1,5 @@
 {
-  "name": "Room Rent & Utility History",
+  "name": "Rent & Utility Manager",
   "description": "Track room rent, electricity usage, water usage, waste charges, unit rates, payments, and monthly history.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
