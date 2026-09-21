@@ -10,11 +10,11 @@ plugins {
 }
 
 android {
-  namespace = "com.example"
+  namespace = "com.rentutilitymanager"
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.roomrent.qxptvf"
+    applicationId = "com.rentutilitymanager"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
